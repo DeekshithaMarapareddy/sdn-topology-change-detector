@@ -38,55 +38,56 @@ sudo mn -c
 2. Start POX Controller
 cd ~/pox
 ./pox.py log.level --DEBUG misc.tcd_pox
-3. Start Mininet Topology
+3.Start Mininet Topology
 sudo mn --topo linear,3 --controller=remote,ip=127.0.0.1,port=6633
 4. Display Topology
 nodes
 net
 links
-🧪 Test Scenarios
-✅ Scenario 1: Normal Connectivity
+Test Scenarios
+Scenario 1: Normal Connectivity
 pingall
 
-✔ Expected:
+Expected Output:
 
-0% dropped
-🚫 Scenario 2: Blocked Traffic (Policy Enforcement)
+0% packet loss
+All hosts can communicate
+Scenario 2: Allowed vs Blocked Traffic
+h1 ping h2
 h1 ping h3
 
-✔ Expected:
+Expected Output:
 
-100% packet loss
-
-✔ Explanation:
-Traffic from host h1 (10.0.0.1) to h3 (10.0.0.3) is blocked using OpenFlow drop rule.
-
- Scenario 3: Link Failure
+h1 → h2: Successful communication
+h1 → h3: 100% packet loss (blocked by controller)
+Scenario 3: Link Failure
 link s1 s2 down
 pingall
 
-Expected:
+Expected Output:
+
 Packet loss observed
-Scenario 4: Recovery
+Network disruption
+Scenario 4: Link Recovery
 link s1 s2 up
 pingall
 
-Expected:
-0% dropped
+Expected Output:
+
+Network restored
+0% packet loss
 Flow Table Verification
 sh ovs-ofctl dump-flows s1
 
-Shows installed OpenFlow rules (match → action)
+Expected Output:
 
- Expected Output Summary
-Scenario	Expected Result
-Normal network	0% packet loss
-h1 → h3	Blocked (100% loss)
-Link down	Packet loss
-Link up	Recovery
- Conclusion
+Flow entries showing match–action rules installed by controller
+Expected Output Summary
+Normal network: 0% packet loss
+Allowed traffic: Successful communication
+Blocked traffic: 100% packet loss
+Link failure: Packet loss observed
+Link recovery: Network restored
+Flow tables: Display OpenFlow rules installed by controller
 
-This project demonstrates how SDN enables centralized control over network behavior. The controller dynamically installs flow rules, blocks specific traffic, and adapts to topology changes efficiently.
-
-
----
+'''
