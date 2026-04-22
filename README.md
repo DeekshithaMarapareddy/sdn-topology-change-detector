@@ -1,44 +1,92 @@
 # SDN Topology Change Detector using POX & Mininet
 
 ## 📌 Problem Statement
-The objective of this project is to implement a Software Defined Networking (SDN) solution using Mininet and a POX controller. The system demonstrates controller–switch interaction, handling of packet_in events, and OpenFlow match–action rule design. It also shows how the controller can dynamically manage network behavior by allowing or blocking specific traffic flows and responding to topology changes such as link failures and recovery.
+The goal of this project is to implement a Software Defined Networking (SDN) solution using Mininet and a POX controller to demonstrate:
+
+- Controller–switch interaction
+- OpenFlow match–action rule design
+- Packet handling using `packet_in` events
+- Network behavior under different scenarios
 
 ---
 
-## ⚙️ Setup & Execution Steps
+## ⚙️ Technologies Used
+- Mininet (Network Emulator)
+- POX Controller (OpenFlow Controller)
+- OpenFlow Protocol
 
-### 1. Clean previous setup
+---
+
+## 🧠 Project Description
+
+This project implements a learning switch using POX and extends it with:
+
+- MAC address learning
+- Flow rule installation
+- Traffic control using OpenFlow rules
+- Blocking specific traffic (h1 → h3)
+- Handling topology changes (link failure & recovery)
+
+---
+
+## 🚀 Setup & Execution Steps
+
+### 1. Clean Environment
 ```bash
 sudo pkill -f pox
 sudo mn -c
-2. Start POX controller
+2. Start POX Controller
 cd ~/pox
 ./pox.py log.level --DEBUG misc.tcd_pox
-3. Start Mininet topology
+3. Start Mininet Topology
 sudo mn --topo linear,3 --controller=remote,ip=127.0.0.1,port=6633
-4. Display topology
+4. Display Topology
 nodes
 net
 links
-5. Test normal connectivity
+🧪 Test Scenarios
+✅ Scenario 1: Normal Connectivity
 pingall
-6. Test selective traffic (allowed vs blocked)
-h1 ping h2   # allowed
-h1 ping h3   # blocked
-7. Simulate link failure
+
+✔ Expected:
+
+0% dropped
+🚫 Scenario 2: Blocked Traffic (Policy Enforcement)
+h1 ping h3
+
+✔ Expected:
+
+100% packet loss
+
+✔ Explanation:
+Traffic from host h1 (10.0.0.1) to h3 (10.0.0.3) is blocked using OpenFlow drop rule.
+
+ Scenario 3: Link Failure
 link s1 s2 down
 pingall
-8. Restore network
+
+Expected:
+Packet loss observed
+Scenario 4: Recovery
 link s1 s2 up
 pingall
-9. Verify flow rules
+
+Expected:
+0% dropped
+Flow Table Verification
 sh ovs-ofctl dump-flows s1
-📊 Expected Output
-Normal Network: pingall shows 0% packet loss
-Allowed Traffic: Communication between h1 and h2 is successful
-Blocked Traffic: h1 ping h3 results in 100% packet loss
-Link Failure: Bringing link down results in packet loss
-Recovery: Restoring the link brings network back to 0% packet loss
-Flow Rules: ovs-ofctl dump-flows shows match–action rules installed by the controller
+
+Shows installed OpenFlow rules (match → action)
+
+ Expected Output Summary
+Scenario	Expected Result
+Normal network	0% packet loss
+h1 → h3	Blocked (100% loss)
+Link down	Packet loss
+Link up	Recovery
+ Conclusion
+
+This project demonstrates how SDN enables centralized control over network behavior. The controller dynamically installs flow rules, blocks specific traffic, and adapts to topology changes efficiently.
+
 
 ---
